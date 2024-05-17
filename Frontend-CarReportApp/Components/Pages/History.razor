@@ -1,0 +1,31 @@
+﻿@page "/history"
+
+<PageTitle>History</PageTitle>
+
+<h3>History</h3>
+
+<p>View old reports: </p>
+<div>
+    <button class="button" @onclick="GetAll">View</button>
+</div>
+
+@code {
+    [Inject]
+    private HttpClient httpClient { get; set; }
+
+    private async Task GetAll()
+    {
+        var response = await httpClient.GetAsync("https://restcountries.com/v3.1/name/sweden?fullText=true");
+        if (response.IsSuccessStatusCode)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(content);
+        }
+        else
+        {
+            // Handle error response
+            var errorMessage = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(errorMessage);
+        }
+    }
+}

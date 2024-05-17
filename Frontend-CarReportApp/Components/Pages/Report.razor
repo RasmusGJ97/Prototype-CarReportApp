@@ -1,0 +1,60 @@
+﻿@page "/report"
+@inject HttpClient httpClient
+@inject NavigationManager NavigationManager
+
+
+<PageTitle>Report</PageTitle>
+
+<h3>Report</h3>
+
+<p>Please fill in the form to file a report on a car.</p>
+
+<form @onsubmit="SubmitForm">
+    <div class="reportForm">
+        <div class="inputBox">
+            <input type="text" placeholder="Reg Number" @bind="regNr">
+            <input type="text" placeholder="Title" @bind="title">
+        </div>
+        <textarea name="" @bind="description" cols="30" rows="10" placeholder="Description"></textarea>
+        <button type="submit">Submit</button>
+    </div>
+</form>
+
+
+@code {
+    private string regNr;
+    private string title;
+    private string description;
+
+    private async Task SubmitForm()
+    {
+        try
+        {
+            var requestData = new
+            {
+                RegNumber = regNr,
+                Title = title,
+                Description = description
+            };
+
+            var response = await httpClient.PostAsJsonAsync($"https://localhost:7144/api/CarReport/", requestData);
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                NavigationManager.NavigateTo("/report-submitted");
+            }
+            else
+            {
+                // Handle error response
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Failed to submit report: {errorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Handle exception
+            Console.WriteLine($"Exception: {ex.Message}");
+        }
+    }
+}
+
